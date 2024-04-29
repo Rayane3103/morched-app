@@ -3,7 +3,8 @@ import 'package:morched/constants/constants.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 
 class MySlider extends StatefulWidget {
-  const MySlider({super.key});
+  const MySlider({super.key, required this.onSubmit});
+  final VoidCallback onSubmit;
 
   @override
   State<MySlider> createState() => _MySliderState();
@@ -33,7 +34,8 @@ class _MySliderState extends State<MySlider> {
             text: '     Trouver le Service',
             key: key,
             onSubmit: () {
-              return null;
+              widget.onSubmit();
+              return null; // Invoke the onSubmit callback
             },
           ),
         );

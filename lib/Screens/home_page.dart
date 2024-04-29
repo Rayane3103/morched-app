@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:morched/Components/slider.dart';
 import 'package:morched/constants/constants.dart';
 
 class HomePage extends StatelessWidget {
-  HomePage({super.key});
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +161,11 @@ class HomePage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20.0, right: 20),
-              child: MySlider(),
+              child: MySlider(
+                onSubmit: () {
+                  Navigator.pushReplacementNamed(context, '/map');
+                },
+              ),
             )
           ],
         ),

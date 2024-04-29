@@ -9,7 +9,7 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  GoogleMapController? _mapController; // Change this
+  GoogleMapController? _mapController;
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +38,9 @@ class _MapPageState extends State<MapPage> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color.fromARGB(80, 255, 175, 55),
-                      Color.fromARGB(80, 180, 87, 173),
-                      Color.fromARGB(80, 255, 87, 199),
+                      Color.fromARGB(250, 255, 175, 55),
+                      Color.fromARGB(250, 180, 87, 173),
+                      Color.fromARGB(250, 255, 87, 199),
                     ],
                   ),
                   borderRadius: const BorderRadius.only(
@@ -66,7 +66,7 @@ class _MapPageState extends State<MapPage> {
                     Expanded(
                       child: ListView.builder(
                         controller: scrollController,
-                        itemCount: 25,
+                        itemCount: 8,
                         itemBuilder: (BuildContext context, int index) {
                           return Padding(
                             padding: const EdgeInsets.all(20.0),

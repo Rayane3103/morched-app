@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:morched/Components/customfield.dart';
+import 'package:morched/Screens/home_page.dart';
 import 'package:morched/constants/constants.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -14,69 +15,94 @@ class SignUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: ListView(
-          children: [
-            Image.asset(
-              'assets/logo.png',
-              height: 260,
-            ),
-            CustomTextField(
-              labelText: 'Nom & Prénom',
-              prefixIcon: Icons.person,
-              controller: name_controller,
-            ),
-            const MySpace(factor: 0.08),
-            CustomTextField(
-              labelText: 'E-mail',
-              prefixIcon: Icons.email_rounded,
-              controller: email_controller,
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const MySpace(factor: 0.08),
-            CustomTextField(
-              labelText: 'Mot De Pass',
-              prefixIcon: Icons.lock,
-              controller: mdps_controller,
-              obscureText: true,
-              keyboardType: TextInputType.visiblePassword,
-            ),
-            const MySpace(factor: 0.08),
-            CustomTextField(
-              labelText: 'Confirmer Mot De Pass',
-              prefixIcon: Icons.password_rounded,
-              controller: conf_mdps_controller,
-              obscureText: true,
-            ),
-            const MySpace(factor: 0.08),
-            ElevatedButton(
-              onPressed: () {},
-              style: ButtonStyle(
-                elevation: MaterialStateProperty.all<double>(6.0),
-                backgroundColor: MaterialStateProperty.all<Color>(primaryColor),
-              ),
-              child: const Text(
-                'Inscrire',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.fromARGB(120, 255, 175, 55),
+                  Color.fromARGB(120, 180, 87, 173),
+                  Color.fromARGB(120, 255, 87, 199),
+                ],
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: ListView(
               children: [
-                const Text("Vous avez déja un compte ?"),
-                TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    child: const Text("Connecter Maintenant")),
+                Image.asset(
+                  'assets/logo.png',
+                  height: 260,
+                ),
+                CustomTextField(
+                  labelText: 'Nom & Prénom',
+                  prefixIcon: Icons.person,
+                  controller: name_controller,
+                ),
+                const MySpace(factor: 0.08),
+                CustomTextField(
+                  labelText: 'E-mail',
+                  prefixIcon: Icons.email_rounded,
+                  controller: email_controller,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const MySpace(factor: 0.08),
+                CustomTextField(
+                  labelText: 'Mot De Pass',
+                  prefixIcon: Icons.lock,
+                  controller: mdps_controller,
+                  obscureText: true,
+                  keyboardType: TextInputType.visiblePassword,
+                ),
+                const MySpace(factor: 0.08),
+                CustomTextField(
+                  labelText: 'Confirmer Mot De Pass',
+                  prefixIcon: Icons.password_rounded,
+                  controller: conf_mdps_controller,
+                  obscureText: true,
+                ),
+                const MySpace(factor: 0.08),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement<void, void>(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => const HomePage(),
+                      ),
+                    );
+                  },
+                  style: ButtonStyle(
+                    elevation: MaterialStateProperty.all<double>(6.0),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(primaryColor),
+                  ),
+                  child: const Text(
+                    'Inscrire',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Vous avez déja un compte ?"),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
+                        },
+                        child: const Text("Connecter Maintenant")),
+                  ],
+                )
               ],
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }

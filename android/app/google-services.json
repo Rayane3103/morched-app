@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1020155966248",
+    "project_id": "morched",
+    "storage_bucket": "morched.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1020155966248:android:790864eb7582547ecd561d",
+        "android_client_info": {
+          "package_name": "com.example.morched"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH_vj6WEQLI8RfbWUNyD1RWRvkMOYvmpQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

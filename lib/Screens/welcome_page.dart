@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:morched/Screens/login_page.dart';
+import 'package:morched/Screens/market_signup.dart';
 import 'package:morched/Screens/signup_page.dart';
 import 'package:morched/constants/constants.dart';
 
@@ -42,7 +44,7 @@ class WelcomePage extends StatelessWidget {
                     Navigator.pushReplacement<void, void>(
                       context,
                       MaterialPageRoute<void>(
-                        builder: (BuildContext context) => SignUpPage(),
+                        builder: (BuildContext context) => MarketSignUp(),
                       ),
                     );
                   },
@@ -85,7 +87,19 @@ class WelcomePage extends StatelessWidget {
                     style: TextStyle(
                         color: primaryColor, fontWeight: FontWeight.w500),
                   ),
-                )
+                ),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement<void, void>(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => LoginPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                        style: TextStyle(color: primaryColor),
+                        'Avez-vous dèja un compte ? Se Connecter!'))
               ],
             ),
           ),
