@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -39,13 +40,17 @@ class AuthService {
     }
   }
 
-  Future signUpWithEmailAndPasswordForMarketUser(String email, String password,
-      String name, String position, String phoneNumber, String category) async {
-    // List<String> daysOfWork,
-    // TimeOfDay startOfWork,
-    // TimeOfDay endOfWork,
-    // List<String> arrayOfImages,
-    // List<String> arrayOfComments
+  Future signUpWithEmailAndPasswordForMarketUser(
+    String email,
+    String password,
+    String name,
+    String position,
+    String phoneNumber,
+    String category,
+    TimeOfDay startOfWork,
+    TimeOfDay endOfWork,
+    List<String> daysOfWork,
+  ) async {
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -66,13 +71,11 @@ class AuthService {
           // 'banner': banner,
           'position': position,
           'category': category,
-          // 'daysOfWork': daysOfWork,
-          // 'startOfWorkHour':
-          //     '${startOfWork.hour}:${startOfWork.minute}', // Store as string
-          // 'endOfWorkHour':
-          //     '${endOfWork.hour}:${endOfWork.minute}', // Store as string
-          // 'arrayOfImages': arrayOfImages,
-          // 'arrayOfComments': arrayOfComments,
+          'daysOfWork': daysOfWork,
+          'startOfWorkHour':
+              '${startOfWork.hour}:${startOfWork.minute}', // Store as string
+          'endOfWorkHour':
+              '${endOfWork.hour}:${endOfWork.minute}', // Store as string
         });
 
         return userCredential.user;
@@ -102,6 +105,7 @@ class AuthService {
   Future signOut() async {
     try {
       await _auth.signOut();
+      print('user successfully signed Out');
     } catch (e) {
       print('Error signing out: $e');
     }

@@ -1,9 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Authentication package
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:morched/Screens/add_images.dart';
 import 'package:morched/Screens/home_page.dart';
 import 'package:morched/Screens/login_page.dart';
-import 'package:morched/Screens/market_signup.dart';
 import 'package:morched/Screens/profile_page.dart';
 import 'package:morched/Screens/signup_page.dart';
 import 'package:morched/Screens/welcome_page.dart';
@@ -26,13 +26,31 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(fontFamily: 'Jaldi'),
       initialRoute: '/',
       routes: {
-        '/': (context) => const WelcomePage(),
+        '/': (context) => FutureBuilder(
+              future: FirebaseAuth.instance.authStateChanges().first,
+              builder: (context, AsyncSnapshot<User?> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Scaffold(
+                    body: Center(child: Image.asset('assets/logo.png')),
+                  );
+                } else {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    print('user is currently signed in');
+                    return const HomePage();
+                  } else {
+                    print('user is currently signed out');
+
+                    return const WelcomePage();
+                  }
+                }
+              },
+            ),
         '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfilePage(),
         '/add': (context) => const AddMarketImages(),
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignUpPage(),
-        '/marketsignup': (context) => MarketSignUp(),
+        '/welcome': (context) => const WelcomePage(),
       },
       debugShowCheckedModeBanner: false,
     );

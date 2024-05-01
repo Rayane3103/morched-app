@@ -82,10 +82,10 @@ class LoginPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Vous n'avez pas du compte ?"),
+                    const Text("pas du compte ?"),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/signup');
+                        Navigator.pushNamed(context, '/welcome');
                       },
                       child: const Text("Inscrire Maintenant"),
                     ),

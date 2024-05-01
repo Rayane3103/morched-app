@@ -4,14 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:morched/Screens/map_page.dart';
 import 'package:morched/constants/constants.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
   });
-  void _onCategoryTap(BuildContext context, String category) {
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  void _onCategoryTap(BuildContext context, String category, String selectedDay,
+      TimeOfDay selectedTime) async {
+    final selectedTimeOfDay = selectedTime; // Store selectedTime
     FirebaseFirestore.instance
         .collection('normal_users')
         .where('category', isEqualTo: category)
+        .where('daysOfWork', arrayContains: selectedDay)
         .get()
         .then((QuerySnapshot querySnapshot) {
       List<Map<String, String>> userData = [];
@@ -24,17 +33,29 @@ class HomePage extends StatelessWidget {
 
         final String firstImageUrl = imageUrls[0];
         final String position = doc['position'];
+        final startOfWorkHour = TimeOfDay(
+          hour: int.parse(doc['startOfWorkHour'].split(':')[0]),
+          minute: int.parse(doc['startOfWorkHour'].split(':')[1]),
+        );
+        final endOfWorkHour = TimeOfDay(
+          hour: int.parse(doc['endOfWorkHour'].split(':')[0]),
+          minute: int.parse(doc['endOfWorkHour'].split(':')[1]),
+        );
 
-        // Add user data to the list
-        userData.add({
-          'name': userName,
-          'firstImageUrl': firstImageUrl,
-          'position': position,
-        });
+        // Perform client-side comparison for endOfWorkHour
+        if (_isTimeOfDayBeforeOrEqualTo(startOfWorkHour, selectedTimeOfDay) &&
+            _isTimeOfDayAfterOrEqualTo(endOfWorkHour, selectedTimeOfDay)) {
+          // Add user data to the list
+          userData.add({
+            'name': userName,
+            'firstImageUrl': firstImageUrl,
+            'position': position,
+          });
+        }
       }
 
       // Navigate to the MapPage and pass the user data
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => MapPage(userData: userData),
@@ -43,6 +64,26 @@ class HomePage extends StatelessWidget {
     }).catchError((error) {
       print('Failed to fetch users: $error');
     });
+  }
+
+  bool _isTimeOfDayBeforeOrEqualTo(TimeOfDay time1, TimeOfDay time2) {
+    if (time1.hour < time2.hour) {
+      return true;
+    } else if (time1.hour == time2.hour) {
+      return time1.minute <= time2.minute;
+    } else {
+      return false;
+    }
+  }
+
+  bool _isTimeOfDayAfterOrEqualTo(TimeOfDay time1, TimeOfDay time2) {
+    if (time1.hour > time2.hour) {
+      return true;
+    } else if (time1.hour == time2.hour) {
+      return time1.minute >= time2.minute;
+    } else {
+      return false;
+    }
   }
 
   Future<Map<String, dynamic>?> _getUserData(String uid) async {
@@ -55,6 +96,22 @@ class HomePage extends StatelessWidget {
     } catch (e) {
       print('Failed to get user data: $e');
       return null;
+    }
+  }
+
+  TimeOfDay _time = TimeOfDay.now();
+  TimeOfDay? selectedTime;
+  String? selectedDay;
+  void _selectTime() async {
+    final TimeOfDay? newTime = await showTimePicker(
+      context: context,
+      initialTime: _time,
+    );
+    if (newTime != null) {
+      setState(() {
+        _time = newTime;
+        selectedTime = newTime;
+      });
     }
   }
 
@@ -123,8 +180,7 @@ class HomePage extends StatelessWidget {
                             ),
                             InkWell(
                               onTap: () {
-                                Navigator.pushReplacementNamed(
-                                    context, '/profile');
+                                Navigator.pushNamed(context, '/profile');
                               },
                               child: SizedBox(
                                 width: 50,
@@ -205,12 +261,27 @@ class HomePage extends StatelessWidget {
                                   Dateheure(
                                     text: "L'Heure",
                                     icon: Icons.schedule,
-                                    onPressed: () {},
+                                    onPressed: _selectTime,
                                   ),
                                   Dateheure(
                                     text: "La Date",
                                     icon: Icons.calendar_month,
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return const WeekdaySelector();
+                                        },
+                                      ).then((selectedList) {
+                                        if (selectedList != null) {
+                                          setState(() {
+                                            selectedDay = selectedList;
+                                          });
+                                          print('Selected Day: $selectedDay');
+                                          // Do whatever you want with the selected days
+                                        }
+                                      });
+                                    },
                                   ),
                                 ],
                               ),
@@ -244,8 +315,23 @@ class HomePage extends StatelessWidget {
                                     return CategoryItem(
                                       category: categories[index],
                                       onTap: () {
-                                        _onCategoryTap(
-                                            context, categories[index]);
+                                        if (selectedDay == null ||
+                                            selectedTime == null) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Veuillez sélectionner le jour et l\'heure avant de choisir une catégorie.'),
+                                            ),
+                                          );
+                                        } else {
+                                          _onCategoryTap(
+                                            context,
+                                            categories[index],
+                                            selectedDay!,
+                                            selectedTime!,
+                                          );
+                                        }
                                       },
                                       image: images[index],
                                       color: colors[index],
@@ -373,5 +459,65 @@ class CategoryItem extends StatelessWidget {
             ),
           ),
         ));
+  }
+}
+
+class WeekdaySelector extends StatefulWidget {
+  const WeekdaySelector({super.key});
+
+  @override
+  _WeekdaySelectorState createState() => _WeekdaySelectorState();
+}
+
+class _WeekdaySelectorState extends State<WeekdaySelector> {
+  String? selectedDay;
+
+  final List<String> weekdays = [
+    'Samedi',
+    'Dimanche',
+    'Lundi',
+    'Mardi',
+    'Mercredi',
+    'Jeudi',
+    'Vendredi',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Select a Weekday'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: weekdays.map((day) {
+            bool isSelected = selectedDay == day;
+            return RadioListTile<String>(
+              title: Text(day),
+              value: day,
+              groupValue: selectedDay,
+              onChanged: (String? value) {
+                setState(() {
+                  selectedDay = value;
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(selectedDay);
+          },
+          child: const Text('OK'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+      ],
+    );
   }
 }

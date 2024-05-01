@@ -39,26 +39,27 @@ class SignUpPage extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/logo.png',
-                  height: 260,
+                  height: 200,
                 ),
                 CustomTextField(
-                  labelText: 'Nom & Prénom',
+                  labelText: 'Nom de service',
                   prefixIcon: Icons.person,
                   controller: name_controller,
                 ),
+                const MySpace(factor: 0.06),
                 CustomTextField(
                   labelText: 'PhoneNumber',
                   prefixIcon: Icons.person,
                   controller: phoneNumber_controller,
                 ),
-                const MySpace(factor: 0.08),
+                const MySpace(factor: 0.06),
                 CustomTextField(
                   labelText: 'E-mail',
                   prefixIcon: Icons.email_rounded,
                   controller: email_controller,
                   keyboardType: TextInputType.emailAddress,
                 ),
-                const MySpace(factor: 0.08),
+                const MySpace(factor: 0.06),
                 CustomTextField(
                   labelText: 'Mot De Pass',
                   prefixIcon: Icons.lock,
@@ -66,14 +67,14 @@ class SignUpPage extends StatelessWidget {
                   obscureText: true,
                   keyboardType: TextInputType.visiblePassword,
                 ),
-                const MySpace(factor: 0.08),
+                const MySpace(factor: 0.06),
                 CustomTextField(
                   labelText: 'Confirmer Mot De Pass',
                   prefixIcon: Icons.password_rounded,
                   controller: conf_mdps_controller,
                   obscureText: true,
                 ),
-                const MySpace(factor: 0.08),
+                const MySpace(factor: 0.06),
                 ElevatedButton(
                   onPressed: () async {
                     AuthService auth = AuthService();
@@ -119,12 +120,12 @@ class SignUpPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Vous avez déja un compte ?"),
+                    const Text("Avez-vous un compte ?"),
                     TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/login');
                         },
-                        child: const Text("Connecter Maintenant")),
+                        child: const Text("se Connecter")),
                   ],
                 )
               ],
