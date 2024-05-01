@@ -1,15 +1,18 @@
 // ignore_for_file: must_be_immutable
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:morched/Components/customfield.dart';
 import 'package:morched/Screens/home_page.dart';
 import 'package:morched/constants/constants.dart';
+import 'package:morched/fire_services.dart';
 
 class SignUpPage extends StatelessWidget {
   TextEditingController name_controller = TextEditingController();
   TextEditingController email_controller = TextEditingController();
   TextEditingController mdps_controller = TextEditingController();
   TextEditingController conf_mdps_controller = TextEditingController();
+  TextEditingController phoneNumber_controller = TextEditingController();
   SignUpPage({super.key});
 
   @override
@@ -43,6 +46,11 @@ class SignUpPage extends StatelessWidget {
                   prefixIcon: Icons.person,
                   controller: name_controller,
                 ),
+                CustomTextField(
+                  labelText: 'PhoneNumber',
+                  prefixIcon: Icons.person,
+                  controller: phoneNumber_controller,
+                ),
                 const MySpace(factor: 0.08),
                 CustomTextField(
                   labelText: 'E-mail',
@@ -67,13 +75,33 @@ class SignUpPage extends StatelessWidget {
                 ),
                 const MySpace(factor: 0.08),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement<void, void>(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const HomePage(),
-                      ),
-                    );
+                  onPressed: () async {
+                    AuthService auth = AuthService();
+
+                    try {
+                      User? user =
+                          await auth.signUpWithEmailAndPasswordForNormalUser(
+                        email_controller.text,
+                        mdps_controller.text,
+                        name_controller.text,
+                        phoneNumber_controller.text,
+                      );
+
+                      if (user != null) {
+                        // Sign-up successful, navigate to home page
+                        Navigator.pushReplacement<void, void>(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) => const HomePage(),
+                          ),
+                        );
+                      } else {
+                        // Handle sign-up failure, such as showing an error message
+                      }
+                    } catch (e) {
+                      // Handle any exceptions here, such as showing an error message
+                      print('Error during sign up: $e');
+                    }
                   },
                   style: ButtonStyle(
                     elevation: MaterialStateProperty.all<double>(6.0),

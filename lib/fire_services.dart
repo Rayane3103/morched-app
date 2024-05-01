@@ -1,13 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future signUpWithEmailAndPasswordForNormalUser(String email, String password,
-      String fullName, String phoneNumber, String image) async {
+  Future signUpWithEmailAndPasswordForNormalUser(
+    String email,
+    String password,
+    String fullName,
+    String phoneNumber,
+  ) async {
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -20,10 +23,9 @@ class AuthService {
             .collection('normal_users')
             .doc(userCredential.user!.uid)
             .set({
-          'fullName': fullName,
+          'name': fullName,
           'email': email,
           'phoneNumber': phoneNumber,
-          'image': image,
         });
 
         return userCredential.user;
@@ -37,18 +39,13 @@ class AuthService {
     }
   }
 
-  Future signUpWithEmailAndPasswordForMarketUser(
-      String email,
-      String password,
-      String name,
-      String image,
-      String banner,
-      String position,
-      List<String> daysOfWork,
-      TimeOfDay startOfWork,
-      TimeOfDay endOfWork,
-      List<String> arrayOfImages,
-      List<String> arrayOfComments) async {
+  Future signUpWithEmailAndPasswordForMarketUser(String email, String password,
+      String name, String position, String phoneNumber, String category) async {
+    // List<String> daysOfWork,
+    // TimeOfDay startOfWork,
+    // TimeOfDay endOfWork,
+    // List<String> arrayOfImages,
+    // List<String> arrayOfComments
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -58,21 +55,24 @@ class AuthService {
 
       if (userCredential.user != null) {
         await _firestore
-            .collection('market_users')
+            .collection('normal_users')
             .doc(userCredential.user!.uid)
             .set({
           'name': name,
           'email': email,
-          'image': image,
-          'banner': banner,
+          'phoneNumber': phoneNumber,
+
+          // 'image': image,
+          // 'banner': banner,
           'position': position,
-          'daysOfWork': daysOfWork,
-          'startOfWorkHour':
-              '${startOfWork.hour}:${startOfWork.minute}', // Store as string
-          'endOfWorkHour':
-              '${endOfWork.hour}:${endOfWork.minute}', // Store as string
-          'arrayOfImages': arrayOfImages,
-          'arrayOfComments': arrayOfComments,
+          'category': category,
+          // 'daysOfWork': daysOfWork,
+          // 'startOfWorkHour':
+          //     '${startOfWork.hour}:${startOfWork.minute}', // Store as string
+          // 'endOfWorkHour':
+          //     '${endOfWork.hour}:${endOfWork.minute}', // Store as string
+          // 'arrayOfImages': arrayOfImages,
+          // 'arrayOfComments': arrayOfComments,
         });
 
         return userCredential.user;
