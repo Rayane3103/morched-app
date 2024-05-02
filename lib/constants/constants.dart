@@ -55,3 +55,37 @@ class MySpace extends StatelessWidget {
     );
   }
 }
+
+class IndicatorWait extends StatelessWidget {
+  const IndicatorWait({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(children: [
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(180, 255, 175, 55),
+                Color.fromARGB(190, 180, 87, 173),
+                Color.fromARGB(120, 255, 87, 199),
+              ],
+            ),
+          ),
+        ),
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/logo.png'),
+              const CircularProgressIndicator(),
+            ],
+          ),
+        )
+      ]),
+    );
+  }
+}

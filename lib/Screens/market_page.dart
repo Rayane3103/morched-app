@@ -5,10 +5,96 @@ import 'package:morched/constants/constants.dart';
 
 class MarketPage extends StatelessWidget {
   final String name;
-  const MarketPage({
+  final TextEditingController commentController = TextEditingController();
+
+  MarketPage({
     super.key,
     required this.name,
   });
+
+  Future<List<Map<String, dynamic>>> _fetchComments() async {
+    try {
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('market_comments')
+              .doc(name)
+              .collection('comments')
+              .orderBy('timestamp',
+                  descending: true) // Order comments by timestamp
+              .get();
+
+      // Check if any comments are found
+      if (querySnapshot.docs.isNotEmpty) {
+        // Extract comments data
+        List<Map<String, dynamic>> comments = [];
+        for (final doc in querySnapshot.docs) {
+          // Fetch user data for each comment
+          final userId = doc['userId'];
+          final userData = await _getUsersData(userId);
+          final commentData = doc.data();
+          // Add user data to comment
+          commentData['userName'] = userData?['name'] ?? 'User';
+          commentData['profileImageUrl'] = userData?['profileImageUrl'] ?? '';
+          comments.add(commentData);
+        }
+        return comments;
+      } else {
+        // No comments found
+        return [];
+      }
+    } catch (e) {
+      // Handle errors here
+      print('Error fetching comments: $e');
+      return [];
+    }
+  }
+
+  Future<void> _addComment(String comment) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Add the comment to Firestore
+        await FirebaseFirestore.instance
+            .collection('market_comments')
+            .doc(name)
+            .collection('comments')
+            .add({
+          'userId': user.uid,
+          'comment': comment,
+          'timestamp': Timestamp.now(),
+        });
+      }
+    } catch (e) {
+      // Handle errors here
+      print('Error adding comment: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>?> _getUsersData(String userId) async {
+    try {
+      // Query Firestore collection for user with matching ID
+      DocumentSnapshot<Map<String, dynamic>> userDataSnapshot =
+          await FirebaseFirestore.instance
+              .collection('normal_users')
+              .doc(userId)
+              .get();
+
+      // Check if document exists
+      if (userDataSnapshot.exists) {
+        // Extract user data
+        Map<String, dynamic> userData = userDataSnapshot.data()!;
+        return userData;
+      } else {
+        // User not found
+        print('User not found with the ID: $userId');
+        return null;
+      }
+    } catch (e) {
+      // Error occurred while fetching user data
+      print('Error fetching user data: $e');
+      return null;
+    }
+  }
 
   Future<Map<String, dynamic>?> _getUserData(String name) async {
     try {
@@ -43,7 +129,7 @@ class MarketPage extends StatelessWidget {
       future: FirebaseAuth.instance.authStateChanges().first,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const IndicatorWait();
         }
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
@@ -59,7 +145,7 @@ class MarketPage extends StatelessWidget {
           builder:
               (context, AsyncSnapshot<Map<String, dynamic>?> userDataSnapshot) {
             if (userDataSnapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return const IndicatorWait();
             }
             if (userDataSnapshot.hasError) {
               return Text('Error: ${userDataSnapshot.error}');
@@ -92,6 +178,7 @@ class MarketPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Display other data before comments section
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 50),
                           child: Row(
@@ -148,6 +235,7 @@ class MarketPage extends StatelessWidget {
                           ),
                         ),
                         const MySpace(factor: 0.001),
+                        // Display images
                         SizedBox(
                           height: 200,
                           child: ListView.builder(
@@ -184,63 +272,143 @@ class MarketPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.45,
-                          child: ListView.builder(
-                            scrollDirection: Axis.vertical,
-                            itemCount: 3,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(15.0),
-                                child: Container(
-                                  width: 250,
-                                  height: 200,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: const Column(
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            top: 10.0, left: 20),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                              height: 40,
-                                              width: 40,
-                                              child: CircleAvatar(),
-                                            ),
-                                            MySpace(factor: 0.02),
-                                            Column(
-                                              children: [
-                                                Text(
-                                                  'Aliana bingosal',
-                                                  style: TextStyle(
-                                                      color: Colors.black),
-                                                ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 20.0, vertical: 15),
-                                          child: Text(
-                                            "Dans Google Maps, vous pouvez rédiger des avis sur les lieux que vous visitez. Vous pouvez également ajouter des informations, ou publier de nouvelles photos ou vidéos (par exemple, pour indiquer si l'endroit est calme, romantique ou en travaux).",
-                                            softWrap: true,
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child:
+                                    FutureBuilder<List<Map<String, dynamic>>>(
+                                  future: _fetchComments(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const IndicatorWait();
+                                    }
+                                    if (snapshot.hasError) {
+                                      return Text('Error: ${snapshot.error}');
+                                    }
+                                    final comments = snapshot.data;
+                                    if (comments == null || comments.isEmpty) {
+                                      return const Padding(
+                                        padding: EdgeInsets.all(15.0),
+                                        child: Text(
+                                          'No comments yet',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
+                                      );
+                                    }
+                                    return Expanded(
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.vertical,
+                                        itemCount: comments.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          final comment = comments[index];
+                                          return Padding(
+                                            padding: const EdgeInsets.all(15.0),
+                                            child: Container(
+                                              width: 250,
+                                              height: 150,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                              ),
+                                              child: Column(
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 10.0,
+                                                            left: 20),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        CircleAvatar(
+                                                          backgroundImage:
+                                                              NetworkImage(comment[
+                                                                  'profileImageUrl']),
+                                                          radius: 20,
+                                                        ),
+                                                        const MySpace(
+                                                            factor: 0.02),
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              comment[
+                                                                  'userName'],
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                        horizontal: 20.0,
+                                                      ),
+                                                      child: Text(
+                                                        comment['comment'],
+                                                        softWrap: true,
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
-                                    ],
-                                  ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(15.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: commentController,
+                                        decoration: InputDecoration(
+                                          hintText: 'Add a comment...',
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                          ),
+                                        ),
+                                        onChanged: (value) {},
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.send),
+                                      onPressed: () {
+                                        _addComment(commentController.text);
+                                        commentController.clear();
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],

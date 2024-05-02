@@ -121,7 +121,7 @@ class _HomePageState extends State<HomePage> {
       future: FirebaseAuth.instance.authStateChanges().first,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const IndicatorWait();
         }
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> {
           builder:
               (context, AsyncSnapshot<Map<String, dynamic>?> userDataSnapshot) {
             if (userDataSnapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return const IndicatorWait();
             }
             if (userDataSnapshot.hasError) {
               return Text('Error: ${userDataSnapshot.error}');
@@ -147,207 +147,202 @@ class _HomePageState extends State<HomePage> {
             final profileImageUrl = userData?['profileImageUrl'];
 
             return Scaffold(
-              body: Stack(
+                body: Stack(children: [
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color.fromARGB(180, 255, 175, 55),
+                      Color.fromARGB(190, 180, 87, 173),
+                      Color.fromARGB(120, 255, 87, 199),
+                    ],
+                  ),
+                ),
+              ),
+              Column(
                 children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color.fromARGB(180, 255, 175, 55),
-                          Color.fromARGB(190, 180, 87, 173),
-                          Color.fromARGB(120, 255, 87, 199),
-                        ],
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 40, bottom: 10, right: 40, top: 40),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          userName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/profile');
+                          },
+                          child: SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: CircleAvatar(
+                              backgroundImage: profileImageUrl != null
+                                  ? NetworkImage(profileImageUrl)
+                                  : const AssetImage('assets/girl.jpg')
+                                      as ImageProvider,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(left: 47, right: 40, top: 10),
+                    child: SizedBox(
+                      height: 170,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Stack(
                           children: [
-                            Text(
-                              userName,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
+                            SizedBox(
+                              height: 170,
+                              child: Image.asset(
+                                'assets/Pub.png',
+                                fit: BoxFit.fill,
                               ),
                             ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.pushNamed(context, '/profile');
-                              },
-                              child: SizedBox(
-                                width: 50,
-                                height: 50,
-                                child: CircleAvatar(
-                                  backgroundImage: profileImageUrl != null
-                                      ? NetworkImage(profileImageUrl)
-                                      : const AssetImage('assets/girl.jpg')
-                                          as ImageProvider,
-                                ),
+                            const Padding(
+                              padding:
+                                  EdgeInsets.only(top: 20, left: 8, right: 8),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'مرشد المواقيت',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'تطبيقنا دليلكم',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w200,
+                                    ),
+                                  ),
+                                  Text(
+                                    'أينما كنتم',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w200,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Positioned(
-                        left: 47,
-                        right: 40,
-                        top: 320,
-                        child: Container(
-                            height: 170,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20)),
-                            child: Stack(
-                              children: [
-                                SizedBox(
-                                    height: 170,
-                                    child: Image.asset(
-                                      'assets/Pub.png',
-                                      fit: BoxFit.fill,
-                                    )),
-                                const Padding(
-                                  padding: EdgeInsets.only(
-                                      top: 20, left: 8, right: 8),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        'مرشد المواقيت',
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        'تطبيقنا دليلكم',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w200),
-                                      ),
-                                      Text(
-                                        'أينما كنتم',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w200),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            )),
-                      ),
-                      Positioned(
-                        left: 20,
-                        right: 20,
-                        top: 300,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              left: 50.0, right: 50, top: 15),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.white),
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 20.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Dateheure(
-                                    text: "L'Heure",
-                                    icon: Icons.schedule,
-                                    onPressed: _selectTime,
-                                  ),
-                                  Dateheure(
-                                    text: "La Date",
-                                    icon: Icons.calendar_month,
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return const WeekdaySelector();
-                                        },
-                                      ).then((selectedList) {
-                                        if (selectedList != null) {
-                                          setState(() {
-                                            selectedDay = selectedList;
-                                          });
-                                          print('Selected Day: $selectedDay');
-                                          // Do whatever you want with the selected days
-                                        }
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 20.0, left: 30, right: 30),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Dateheure(
+                              text: "L'Heure",
+                              icon: Icons.schedule,
+                              onPressed: _selectTime,
                             ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 100,
-                        child: SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.45,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 27.0, right: 27, top: 20),
-                            child: ListView(
-                              children: [
-                                GridView.builder(
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 16,
-                                    mainAxisSpacing: 16,
-                                  ),
-                                  itemCount: categories.length,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return CategoryItem(
-                                      category: categories[index],
-                                      onTap: () {
-                                        if (selectedDay == null ||
-                                            selectedTime == null) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  'Veuillez sélectionner le jour et l\'heure avant de choisir une catégorie.'),
-                                            ),
-                                          );
-                                        } else {
-                                          _onCategoryTap(
-                                            context,
-                                            categories[index],
-                                            selectedDay!,
-                                            selectedTime!,
-                                          );
-                                        }
-                                      },
-                                      image: images[index],
-                                      color: colors[index],
-                                    );
+                            Dateheure(
+                              text: "La Date",
+                              icon: Icons.calendar_month,
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return const WeekdaySelector();
                                   },
-                                ),
-                              ],
+                                ).then((selectedList) {
+                                  if (selectedList != null) {
+                                    setState(() {
+                                      selectedDay = selectedList;
+                                    });
+                                    print('Selected Day: $selectedDay');
+                                    // Do whatever you want with the selected days
+                                  }
+                                });
+                              },
                             ),
-                          ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.45,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 27.0, right: 27, top: 7),
+                        child: ListView(
+                          children: [
+                            GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                              ),
+                              itemCount: categories.length,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (BuildContext context, int index) {
+                                return CategoryItem(
+                                  category: categories[index],
+                                  onTap: () {
+                                    if (selectedDay == null ||
+                                        selectedTime == null) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Veuillez sélectionner le jour et l\'heure avant de choisir une catégorie.'),
+                                        ),
+                                      );
+                                    } else {
+                                      _onCategoryTap(
+                                        context,
+                                        categories[index],
+                                        selectedDay!,
+                                        selectedTime!,
+                                      );
+                                    }
+                                  },
+                                  image: images[index],
+                                  color: colors[index],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            );
+            ]));
           },
         );
       },

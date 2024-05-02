@@ -7,6 +7,7 @@ import 'package:morched/Screens/login_page.dart';
 import 'package:morched/Screens/profile_page.dart';
 import 'package:morched/Screens/signup_page.dart';
 import 'package:morched/Screens/welcome_page.dart';
+import 'package:morched/constants/constants.dart';
 import 'package:morched/firebase_options.dart';
 
 void main() async {
@@ -30,16 +31,13 @@ class MyApp extends StatelessWidget {
               future: FirebaseAuth.instance.authStateChanges().first,
               builder: (context, AsyncSnapshot<User?> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Scaffold(
-                    body: Center(child: Image.asset('assets/logo.png')),
-                  );
+                  return const IndicatorWait();
                 } else {
                   if (snapshot.hasData && snapshot.data != null) {
                     print('user is currently signed in');
                     return const HomePage();
                   } else {
                     print('user is currently signed out');
-
                     return const WelcomePage();
                   }
                 }

@@ -23,12 +23,14 @@ class MarketSignUp2 extends StatefulWidget {
 }
 
 class _MarketSignUp2State extends State<MarketSignUp2> {
+  final List<Marker> _markers = [];
+
   TextEditingController nom_Controller = TextEditingController();
   TextEditingController adresse_Controller = TextEditingController();
   TextEditingController phone_Controller = TextEditingController();
   final Completer<GoogleMapController> _controller = Completer();
   late LatLng _initialCameraPosition = const LatLng(0, 0);
-  late LatLng _selectedLocation;
+  LatLng? _selectedLocation;
   late String _selectedCategory;
   TimeOfDay? startOfWork;
   TimeOfDay? endOfWork;
@@ -132,9 +134,19 @@ class _MarketSignUp2State extends State<MarketSignUp2> {
   }
 
   Future<void> _selectLocation(LatLng position) async {
-    print("Selected location: $position"); // Debug print
+    print("Selected location: $position");
+
+    // Create a new marker
+    Marker newMarker = Marker(
+      markerId: const MarkerId('selected-location'),
+      position: position,
+    );
+
+    // Update the state to add the new marker
     setState(() {
       _selectedLocation = position;
+      // Add the new marker to the existing set of markers
+      _markers.add(newMarker);
     });
 
     // Do something with the selected location, like updating the form field
@@ -194,20 +206,31 @@ class _MarketSignUp2State extends State<MarketSignUp2> {
                         context: context,
                         builder: (BuildContext context) {
                           return Center(
-                            child: SizedBox(
-                              height: 300,
-                              child: GoogleMap(
-                                initialCameraPosition: CameraPosition(
-                                  target: _initialCameraPosition,
-                                  zoom: 15,
-                                ),
-                                onMapCreated: (GoogleMapController controller) {
-                                  _controller.complete(controller);
-                                },
-                                onTap: _selectLocation,
+                              child: SizedBox(
+                            height: 300, // Set the height of the map
+                            child: GoogleMap(
+                              initialCameraPosition: CameraPosition(
+                                target: _initialCameraPosition,
+                                zoom: 15,
                               ),
+                              onMapCreated: (GoogleMapController controller) {
+                                _controller.complete(controller);
+                              },
+                              onTap: (LatLng latlng) {
+                                Marker newMarker = Marker(
+                                    markerId:
+                                        const MarkerId('selected_position'),
+                                    position: LatLng(
+                                        latlng.latitude, latlng.longitude),
+                                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                                        BitmapDescriptor.hueViolet));
+                                _markers.add(newMarker);
+                              },
+                              markers: _markers
+                                  .map((e) => e)
+                                  .toSet(), // Pass the markers set here
                             ),
-                          );
+                          ));
                         },
                       );
                     },
@@ -408,6 +431,7 @@ class _MarketSignUp2State extends State<MarketSignUp2> {
   }
 }
 
+// ignore: must_be_immutable
 class MarketSignUp extends StatelessWidget {
   TextEditingController name_controller = TextEditingController();
   TextEditingController email_controller = TextEditingController();
