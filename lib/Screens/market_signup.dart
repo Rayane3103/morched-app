@@ -255,7 +255,7 @@ class _MarketSignUp2State extends State<MarketSignUp2> {
                   labelText: 'Numéro de télèphone',
                   prefixIcon: Icons.phone,
                   controller: phone_Controller,
-                  obscureText: true,
+                  obscureText: false,
                 ),
                 const MySpace(factor: 0.05),
                 Dropyy(
@@ -288,7 +288,6 @@ class _MarketSignUp2State extends State<MarketSignUp2> {
                             selectedDays = selectedList;
                           });
                           print('Selected Days: $selectedDays');
-                          // Do whatever you want with the selected days
                         }
                       });
                     },

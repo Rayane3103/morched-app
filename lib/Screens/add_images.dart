@@ -18,7 +18,29 @@ class AddMarketImages extends StatefulWidget {
 class _AddMarketImagesState extends State<AddMarketImages> {
   io.File? image;
   String? imageURL;
+  io.File? registreCommerceImage;
+
   List<io.File> selectedImages = [];
+
+  Future<void> getRegistreCommerceImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+      final imageTemp = io.File(image.path);
+
+      // Update the registreCommerceImage variable in the state
+      setState(() {
+        registreCommerceImage = imageTemp;
+      });
+
+      // Upload the selected image to Firebase Storage
+      String? registreCommerceImageUrl = await uploadImage(imageTemp);
+      // Save the registre commerce image URL to Firestore
+      await saveUserData(null, [], registreCommerceImageUrl);
+    } on PlatformException catch (e) {
+      print('Failed to pick image: $e');
+    }
+  }
 
   Future<String> uploadImage(io.File imageFile) async {
     try {
@@ -45,20 +67,24 @@ class _AddMarketImagesState extends State<AddMarketImages> {
     }
   }
 
-  Future<void> saveUserData(
-      String? profileImageUrl, List<String> imageUrls) async {
+  Future<void> saveUserData(String? profileImageUrl, List<String> imageUrls,
+      [String? registreCommerceImageUrl]) async {
     try {
       // Get the current logged user
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // Update the user document in Firestore with the profile image URL and image URLs
+      // Update the user document in Firestore with the profile image URL, image URLs, and registre commerce image URL
       Map<String, dynamic> userData = {
         'imageUrls': imageUrls,
       };
 
       if (profileImageUrl != null) {
         userData['profileImageUrl'] = profileImageUrl;
+      }
+
+      if (registreCommerceImageUrl != null) {
+        userData['registreCommerceImageUrl'] = registreCommerceImageUrl;
       }
 
       await FirebaseFirestore.instance
@@ -139,10 +165,6 @@ class _AddMarketImagesState extends State<AddMarketImages> {
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
             child: Column(
               children: [
-                Image.asset(
-                  'assets/logo.png',
-                  height: 120,
-                ),
                 const Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Text(
@@ -180,14 +202,14 @@ class _AddMarketImagesState extends State<AddMarketImages> {
                   ),
                 ),
                 const Padding(
-                  padding: EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(10.0),
                   child: Text(
                     'Ajouter les Images de votre Service:',
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: selectedImages.isNotEmpty
                       ? SizedBox(
                           height: 120,
@@ -214,6 +236,37 @@ class _AddMarketImagesState extends State<AddMarketImages> {
                         )
                       : GestureDetector(
                           onTap: getImages,
+                          child: Container(
+                            height: 120,
+                            width: 250,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white,
+                            ),
+                            child:
+                                const Icon(Icons.add_photo_alternate, size: 50),
+                          ),
+                        ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text(
+                    "Ajouter l'image de votre registre commerce",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: selectedImages.isNotEmpty
+                      ? SizedBox(
+                          height: 120,
+                          width: 250,
+                          child: Image.file(
+                            registreCommerceImage!,
+                            fit: BoxFit.fitWidth,
+                          ))
+                      : GestureDetector(
+                          onTap: getRegistreCommerceImage,
                           child: Container(
                             height: 120,
                             width: 250,

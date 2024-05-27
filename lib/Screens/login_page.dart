@@ -4,11 +4,42 @@ import 'package:morched/Screens/home_page.dart';
 import 'package:morched/constants/constants.dart';
 import 'package:morched/fire_services.dart';
 
-class LoginPage extends StatelessWidget {
-  TextEditingController email_controller = TextEditingController();
-  TextEditingController mdps_controller = TextEditingController();
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
-  LoginPage({super.key});
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  String? errorMessage;
+
+  Future<void> login() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        errorMessage = null;
+      });
+
+      AuthService auth = AuthService();
+
+      String? error = await auth.signInWithEmailAndPassword(
+          emailController.text, passwordController.text);
+      if (error != null) {
+        // If login fails, set error message
+        setState(() {
+          errorMessage = 'Failed to login: $error';
+        });
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,68 +61,78 @@ class LoginPage extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(20.0),
-            child: ListView(
-              children: [
-                SizedBox(height: 260, child: Image.asset('assets/logo.png')),
-                CustomTextField(
-                  labelText: 'E-mail',
-                  prefixIcon: Icons.email_rounded,
-                  controller: email_controller,
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const MySpace(factor: 0.05),
-                CustomTextField(
-                  labelText: 'Mot De Pass',
-                  prefixIcon: Icons.lock,
-                  controller: mdps_controller,
-                  obscureText: true,
-                  keyboardType: TextInputType.visiblePassword,
-                ),
-                const MySpace(factor: 0.1),
-                ElevatedButton(
-                  onPressed: () async {
-                    AuthService auth = AuthService();
-
-                    try {
-                      await auth.signInWithEmailAndPassword(
-                          email_controller.text, mdps_controller.text);
-                      Navigator.pushReplacement<void, void>(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (BuildContext context) => const HomePage(),
-                        ),
-                      );
-                    } catch (e) {
-                      // Handle any exceptions here, such as showing an error message
-                      print('Error during sign up: $e');
-                    }
-                  },
-                  style: ButtonStyle(
-                    elevation: MaterialStateProperty.all<double>(6.0),
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(primaryColor),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                children: [
+                  SizedBox(height: 260, child: Image.asset('assets/logo.png')),
+                  CustomTextField(
+                    labelText: 'E-mail',
+                    prefixIcon: Icons.email_rounded,
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      return null;
+                    },
                   ),
-                  child: const Text(
-                    'Connecter',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
+                  const MySpace(factor: 0.05),
+                  CustomTextField(
+                    labelText: 'Mot de passe',
+                    prefixIcon: Icons.lock,
+                    controller: passwordController,
+                    obscureText: true,
+                    keyboardType: TextInputType.visiblePassword,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("pas du compte ?"),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/welcome');
-                      },
-                      child: const Text("Inscrire Maintenant"),
+                  const MySpace(factor: 0.1),
+                  if (errorMessage != null) ...[
+                    Text(
+                      errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 10,
                     ),
                   ],
-                ),
-              ],
+                  ElevatedButton(
+                    onPressed: login,
+                    style: ButtonStyle(
+                      elevation: MaterialStateProperty.all<double>(6.0),
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(primaryColor),
+                    ),
+                    child: const Text(
+                      'Connecter',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Pas de compte ?"),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/welcome');
+                        },
+                        child: const Text("Inscrivez-vous maintenant"),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],

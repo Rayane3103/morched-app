@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -89,23 +90,44 @@ class AuthService {
     }
   }
 
-  Future signInWithEmailAndPassword(String email, String password) async {
+  Future<String?> signInWithEmailAndPassword(
+      String email, String password) async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return userCredential.user;
+
+      return null; // Return null if sign-in is successful
     } catch (e) {
       print('Error signing in: $e');
-      return null;
+      String errorMessage = 'Failed to login.';
+
+      // Parse the error code and provide custom error messages
+      switch ((e as FirebaseAuthException).code) {
+        case 'user-not-found':
+          errorMessage = 'Email not found.';
+          break;
+        case 'wrong-password':
+          errorMessage = 'Incorrect password.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'Invalid email format.';
+          break;
+        default:
+          errorMessage = 'An error occurred. Please try again later.';
+      }
+
+      return errorMessage; // Return custom error message
     }
   }
 
-  Future signOut() async {
+  Future<void> signOut() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
     try {
-      await _auth.signOut();
-      print('user successfully signed Out');
+      await FirebaseAppCheck.instance.getToken(); // Refresh the App Check token
+      await auth.signOut();
+      print('User successfully signed out');
     } catch (e) {
       print('Error signing out: $e');
     }

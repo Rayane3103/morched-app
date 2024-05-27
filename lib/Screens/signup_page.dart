@@ -51,6 +51,7 @@ class SignUpPage extends StatelessWidget {
                   labelText: 'PhoneNumber',
                   prefixIcon: Icons.person,
                   controller: phoneNumber_controller,
+                  obscureText: false,
                 ),
                 const MySpace(factor: 0.06),
                 CustomTextField(

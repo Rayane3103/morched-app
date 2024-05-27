@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:morched/Screens/map_page.dart';
 import 'package:morched/constants/constants.dart';
+import 'package:morched/waiter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -16,7 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   void _onCategoryTap(BuildContext context, String category, String selectedDay,
       TimeOfDay selectedTime) async {
-    final selectedTimeOfDay = selectedTime; // Store selectedTime
+    final selectedTimeOfDay = selectedTime;
     FirebaseFirestore.instance
         .collection('normal_users')
         .where('category', isEqualTo: category)
@@ -31,7 +32,9 @@ class _HomePageState extends State<HomePage> {
         final List<String> imageUrls =
             (imageUrlsData as List<dynamic>).cast<String>();
 
-        final String firstImageUrl = imageUrls[0];
+        // Check if imageUrls is not empty before accessing the first element
+        final String firstImageUrl = imageUrls.isNotEmpty ? imageUrls[0] : '';
+
         final String position = doc['position'];
         final startOfWorkHour = TimeOfDay(
           hour: int.parse(doc['startOfWorkHour'].split(':')[0]),
@@ -99,6 +102,45 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void showContactInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Contact Information'),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.phone),
+                title: Text('Phone'),
+                subtitle: Text('+213 558 57 82 69'),
+              ),
+              ListTile(
+                leading: Icon(Icons.email),
+                title: Text('Email'),
+                subtitle: Text('info@morched.com'),
+              ),
+              ListTile(
+                leading: Icon(Icons.location_on),
+                title: Text('Address'),
+                subtitle: Text('123, Sidi Djilali, Sidi Bel Abbes'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   TimeOfDay _time = TimeOfDay.now();
   TimeOfDay? selectedTime;
   String? selectedDay;
@@ -121,7 +163,7 @@ class _HomePageState extends State<HomePage> {
       future: FirebaseAuth.instance.authStateChanges().first,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const IndicatorWait();
+          return const WaitPage();
         }
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
@@ -198,51 +240,56 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding:
                         const EdgeInsets.only(left: 47, right: 40, top: 10),
-                    child: SizedBox(
-                      height: 170,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Stack(
-                          children: [
-                            SizedBox(
-                              height: 170,
-                              child: Image.asset(
-                                'assets/Pub.png',
-                                fit: BoxFit.fill,
+                    child: InkWell(
+                      onTap: () {
+                        showContactInfoDialog(context);
+                      },
+                      child: SizedBox(
+                        height: 170,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Stack(
+                            children: [
+                              SizedBox(
+                                height: 170,
+                                child: Image.asset(
+                                  'assets/Pub.png',
+                                  fit: BoxFit.fill,
+                                ),
                               ),
-                            ),
-                            const Padding(
-                              padding:
-                                  EdgeInsets.only(top: 20, left: 8, right: 8),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'مرشد المواقيت',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
+                              const Padding(
+                                padding:
+                                    EdgeInsets.only(top: 20, left: 8, right: 8),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'مرشد المواقيت',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'تطبيقنا دليلكم',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w200,
+                                    Text(
+                                      'تطبيقنا دليلكم',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w200,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'أينما كنتم',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w200,
+                                    Text(
+                                      'أينما كنتم',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w200,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
