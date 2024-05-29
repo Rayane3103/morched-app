@@ -257,14 +257,15 @@ class _AddMarketImagesState extends State<AddMarketImages> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: selectedImages.isNotEmpty
+                  child: registreCommerceImage != null
                       ? SizedBox(
                           height: 120,
                           width: 250,
                           child: Image.file(
                             registreCommerceImage!,
                             fit: BoxFit.fitWidth,
-                          ))
+                          ),
+                        )
                       : GestureDetector(
                           onTap: getRegistreCommerceImage,
                           child: Container(

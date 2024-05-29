@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:morched/Screens/login_page.dart';
 import 'package:morched/constants/constants.dart';
 import 'package:morched/fire_services.dart';
 import 'package:morched/waiter.dart';
@@ -179,14 +178,7 @@ class ProfilePage extends StatelessWidget {
                               onPressed: () async {
                                 AuthService auth = AuthService();
                                 try {
-                                  await auth.signOut();
-                                  Navigator.pushReplacement<void, void>(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (BuildContext context) =>
-                                          const LoginPage(),
-                                    ),
-                                  );
+                                  await auth.signOut(context);
                                 } catch (e) {
                                   print('Error during LogingOUT: $e');
                                 }

@@ -149,8 +149,13 @@ class _MarketSignUp2State extends State<MarketSignUp2> {
       _markers.add(newMarker);
     });
 
-    // Do something with the selected location, like updating the form field
-    // You can also close the map here if needed
+    // Show a snackbar with the selected location
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            'Location selected: (${position.latitude}, ${position.longitude})'),
+      ),
+    );
   }
 
   @override
@@ -207,30 +212,23 @@ class _MarketSignUp2State extends State<MarketSignUp2> {
                         builder: (BuildContext context) {
                           return Center(
                               child: SizedBox(
-                            height: 300, // Set the height of the map
-                            child: GoogleMap(
-                              initialCameraPosition: CameraPosition(
-                                target: _initialCameraPosition,
-                                zoom: 15,
-                              ),
-                              onMapCreated: (GoogleMapController controller) {
-                                _controller.complete(controller);
-                              },
-                              onTap: (LatLng latlng) {
-                                Marker newMarker = Marker(
-                                    markerId:
-                                        const MarkerId('selected_position'),
-                                    position: LatLng(
-                                        latlng.latitude, latlng.longitude),
-                                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                                        BitmapDescriptor.hueViolet));
-                                _markers.add(newMarker);
-                              },
-                              markers: _markers
-                                  .map((e) => e)
-                                  .toSet(), // Pass the markers set here
-                            ),
-                          ));
+                                  height: 300, // Set the height of the map
+                                  child: GoogleMap(
+                                    initialCameraPosition: CameraPosition(
+                                      target: _initialCameraPosition,
+                                      zoom: 15,
+                                    ),
+                                    onMapCreated:
+                                        (GoogleMapController controller) {
+                                      if (!_controller.isCompleted) {
+                                        _controller.complete(controller);
+                                      }
+                                    },
+                                    onTap: (LatLng latlng) {
+                                      _selectLocation(latlng);
+                                    },
+                                    markers: _markers.toSet(),
+                                  )));
                         },
                       );
                     },

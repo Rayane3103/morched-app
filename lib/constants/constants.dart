@@ -14,6 +14,7 @@ List<String> categories = [
   'Caféteria',
   'Avocat',
   'Vététinaire',
+  'Boutique'
 ];
 List<String> images = [
   'assets/icons/store.png',
@@ -27,6 +28,7 @@ List<String> images = [
   'assets/icons/cafeteria.png',
   'assets/icons/law.png',
   'assets/icons/veterinary.png',
+  'assets/icons/clothes.png',
 ];
 List colors = [
   const Color.fromARGB(255, 201, 114, 0),
@@ -39,6 +41,7 @@ List colors = [
   const Color.fromARGB(255, 49, 134, 0),
   const Color.fromARGB(255, 117, 65, 0),
   const Color.fromARGB(255, 6, 0, 92),
+  const Color.fromARGB(255, 195, 73, 184),
   const Color.fromARGB(255, 0, 95, 95),
 ];
 

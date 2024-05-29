@@ -90,6 +90,8 @@ flutter:
     - assets/icons/cafeteria.png
     - assets/icons/coiffeuse.png
     - assets/icons/store.png
+    - assets/icons/clothes.png
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

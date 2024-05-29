@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -122,11 +121,11 @@ class AuthService {
     }
   }
 
-  Future<void> signOut() async {
+  Future<void> signOut(BuildContext context) async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     try {
-      await FirebaseAppCheck.instance.getToken(); // Refresh the App Check token
       await auth.signOut();
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       print('User successfully signed out');
     } catch (e) {
       print('Error signing out: $e');
