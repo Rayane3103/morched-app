@@ -42,7 +42,7 @@ class SignUpPage extends StatelessWidget {
                   height: 200,
                 ),
                 CustomTextField(
-                  labelText: 'Nom de service',
+                  labelText: 'Nom & Prénom',
                   prefixIcon: Icons.person,
                   controller: name_controller,
                 ),
